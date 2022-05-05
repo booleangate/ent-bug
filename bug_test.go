@@ -14,6 +14,8 @@ import (
 
 	"entgo.io/bug/ent"
 	"entgo.io/bug/ent/enttest"
+	_ "entgo.io/bug/ent/runtime"
+	"entgo.io/bug/ent/schema"
 )
 
 func TestBugSQLite(t *testing.T) {
@@ -57,8 +59,18 @@ func TestBugMaria(t *testing.T) {
 func test(t *testing.T, client *ent.Client) {
 	ctx := context.Background()
 	client.User.Delete().ExecX(ctx)
-	client.User.Create().SetName("Ariel").SetAge(30).ExecX(ctx)
+	u := client.User.Create().SetName("Ariel").SetAge(30).SaveX(ctx)
+
 	if n := client.User.Query().CountX(ctx); n != 1 {
 		t.Errorf("unexpected number of users: %d", n)
+	}
+
+	expHashID, err := schema.HashUserID(u.ID)
+	if err != nil {
+		t.Errorf("Failed getting expected hash id for id %d: %s", u.ID, err)
+	}
+
+	if expHashID != u.HashID {
+		t.Errorf(`expected hash ID "%s" but got "%s" for id %d`, expHashID, u.HashID, u.ID)
 	}
 }
