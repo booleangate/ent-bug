@@ -2,11 +2,17 @@
 
 package user
 
+import (
+	"entgo.io/ent"
+)
+
 const (
 	// Label holds the string label denoting the user type in the database.
 	Label = "user"
 	// FieldID holds the string denoting the id field in the database.
 	FieldID = "id"
+	// FieldHashID holds the string denoting the hash_id field in the database.
+	FieldHashID = "hash_id"
 	// FieldAge holds the string denoting the age field in the database.
 	FieldAge = "age"
 	// FieldName holds the string denoting the name field in the database.
@@ -18,6 +24,7 @@ const (
 // Columns holds all SQL columns for user fields.
 var Columns = []string{
 	FieldID,
+	FieldHashID,
 	FieldAge,
 	FieldName,
 }
@@ -31,3 +38,13 @@ func ValidColumn(column string) bool {
 	}
 	return false
 }
+
+// Note that the variables below are initialized by the runtime
+// package on the initialization of the application. Therefore,
+// it should be imported in the main as follows:
+//
+//	import _ "entgo.io/bug/ent/runtime"
+//
+var (
+	Hooks [1]ent.Hook
+)

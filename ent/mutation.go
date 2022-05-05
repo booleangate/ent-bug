@@ -32,6 +32,7 @@ type UserMutation struct {
 	op            Op
 	typ           string
 	id            *int
+	hash_id       *string
 	age           *int
 	addage        *int
 	name          *string
@@ -137,6 +138,55 @@ func (m *UserMutation) IDs(ctx context.Context) ([]int, error) {
 	default:
 		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
 	}
+}
+
+// SetHashID sets the "hash_id" field.
+func (m *UserMutation) SetHashID(s string) {
+	m.hash_id = &s
+}
+
+// HashID returns the value of the "hash_id" field in the mutation.
+func (m *UserMutation) HashID() (r string, exists bool) {
+	v := m.hash_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldHashID returns the old "hash_id" field's value of the User entity.
+// If the User object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UserMutation) OldHashID(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldHashID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldHashID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldHashID: %w", err)
+	}
+	return oldValue.HashID, nil
+}
+
+// ClearHashID clears the value of the "hash_id" field.
+func (m *UserMutation) ClearHashID() {
+	m.hash_id = nil
+	m.clearedFields[user.FieldHashID] = struct{}{}
+}
+
+// HashIDCleared returns if the "hash_id" field was cleared in this mutation.
+func (m *UserMutation) HashIDCleared() bool {
+	_, ok := m.clearedFields[user.FieldHashID]
+	return ok
+}
+
+// ResetHashID resets all changes to the "hash_id" field.
+func (m *UserMutation) ResetHashID() {
+	m.hash_id = nil
+	delete(m.clearedFields, user.FieldHashID)
 }
 
 // SetAge sets the "age" field.
@@ -250,7 +300,10 @@ func (m *UserMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *UserMutation) Fields() []string {
-	fields := make([]string, 0, 2)
+	fields := make([]string, 0, 3)
+	if m.hash_id != nil {
+		fields = append(fields, user.FieldHashID)
+	}
 	if m.age != nil {
 		fields = append(fields, user.FieldAge)
 	}
@@ -265,6 +318,8 @@ func (m *UserMutation) Fields() []string {
 // schema.
 func (m *UserMutation) Field(name string) (ent.Value, bool) {
 	switch name {
+	case user.FieldHashID:
+		return m.HashID()
 	case user.FieldAge:
 		return m.Age()
 	case user.FieldName:
@@ -278,6 +333,8 @@ func (m *UserMutation) Field(name string) (ent.Value, bool) {
 // database failed.
 func (m *UserMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
 	switch name {
+	case user.FieldHashID:
+		return m.OldHashID(ctx)
 	case user.FieldAge:
 		return m.OldAge(ctx)
 	case user.FieldName:
@@ -291,6 +348,13 @@ func (m *UserMutation) OldField(ctx context.Context, name string) (ent.Value, er
 // type.
 func (m *UserMutation) SetField(name string, value ent.Value) error {
 	switch name {
+	case user.FieldHashID:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetHashID(v)
+		return nil
 	case user.FieldAge:
 		v, ok := value.(int)
 		if !ok {
@@ -349,7 +413,11 @@ func (m *UserMutation) AddField(name string, value ent.Value) error {
 // ClearedFields returns all nullable fields that were cleared during this
 // mutation.
 func (m *UserMutation) ClearedFields() []string {
-	return nil
+	var fields []string
+	if m.FieldCleared(user.FieldHashID) {
+		fields = append(fields, user.FieldHashID)
+	}
+	return fields
 }
 
 // FieldCleared returns a boolean indicating if a field with the given name was
@@ -362,6 +430,11 @@ func (m *UserMutation) FieldCleared(name string) bool {
 // ClearField clears the value of the field with the given name. It returns an
 // error if the field is not defined in the schema.
 func (m *UserMutation) ClearField(name string) error {
+	switch name {
+	case user.FieldHashID:
+		m.ClearHashID()
+		return nil
+	}
 	return fmt.Errorf("unknown User nullable field %s", name)
 }
 
@@ -369,6 +442,9 @@ func (m *UserMutation) ClearField(name string) error {
 // It returns an error if the field is not defined in the schema.
 func (m *UserMutation) ResetField(name string) error {
 	switch name {
+	case user.FieldHashID:
+		m.ResetHashID()
+		return nil
 	case user.FieldAge:
 		m.ResetAge()
 		return nil

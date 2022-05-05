@@ -27,6 +27,26 @@ func (uu *UserUpdate) Where(ps ...predicate.User) *UserUpdate {
 	return uu
 }
 
+// SetHashID sets the "hash_id" field.
+func (uu *UserUpdate) SetHashID(s string) *UserUpdate {
+	uu.mutation.SetHashID(s)
+	return uu
+}
+
+// SetNillableHashID sets the "hash_id" field if the given value is not nil.
+func (uu *UserUpdate) SetNillableHashID(s *string) *UserUpdate {
+	if s != nil {
+		uu.SetHashID(*s)
+	}
+	return uu
+}
+
+// ClearHashID clears the value of the "hash_id" field.
+func (uu *UserUpdate) ClearHashID() *UserUpdate {
+	uu.mutation.ClearHashID()
+	return uu
+}
+
 // SetAge sets the "age" field.
 func (uu *UserUpdate) SetAge(i int) *UserUpdate {
 	uu.mutation.ResetAge()
@@ -123,6 +143,19 @@ func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			}
 		}
 	}
+	if value, ok := uu.mutation.HashID(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: user.FieldHashID,
+		})
+	}
+	if uu.mutation.HashIDCleared() {
+		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Column: user.FieldHashID,
+		})
+	}
 	if value, ok := uu.mutation.Age(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
 			Type:   field.TypeInt,
@@ -161,6 +194,26 @@ type UserUpdateOne struct {
 	fields   []string
 	hooks    []Hook
 	mutation *UserMutation
+}
+
+// SetHashID sets the "hash_id" field.
+func (uuo *UserUpdateOne) SetHashID(s string) *UserUpdateOne {
+	uuo.mutation.SetHashID(s)
+	return uuo
+}
+
+// SetNillableHashID sets the "hash_id" field if the given value is not nil.
+func (uuo *UserUpdateOne) SetNillableHashID(s *string) *UserUpdateOne {
+	if s != nil {
+		uuo.SetHashID(*s)
+	}
+	return uuo
+}
+
+// ClearHashID clears the value of the "hash_id" field.
+func (uuo *UserUpdateOne) ClearHashID() *UserUpdateOne {
+	uuo.mutation.ClearHashID()
+	return uuo
 }
 
 // SetAge sets the "age" field.
@@ -282,6 +335,19 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 				ps[i](selector)
 			}
 		}
+	}
+	if value, ok := uuo.mutation.HashID(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: user.FieldHashID,
+		})
+	}
+	if uuo.mutation.HashIDCleared() {
+		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Column: user.FieldHashID,
+		})
 	}
 	if value, ok := uuo.mutation.Age(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{

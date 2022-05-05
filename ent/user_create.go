@@ -19,6 +19,20 @@ type UserCreate struct {
 	hooks    []Hook
 }
 
+// SetHashID sets the "hash_id" field.
+func (uc *UserCreate) SetHashID(s string) *UserCreate {
+	uc.mutation.SetHashID(s)
+	return uc
+}
+
+// SetNillableHashID sets the "hash_id" field if the given value is not nil.
+func (uc *UserCreate) SetNillableHashID(s *string) *UserCreate {
+	if s != nil {
+		uc.SetHashID(*s)
+	}
+	return uc
+}
+
 // SetAge sets the "age" field.
 func (uc *UserCreate) SetAge(i int) *UserCreate {
 	uc.mutation.SetAge(i)
@@ -134,6 +148,14 @@ func (uc *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 			},
 		}
 	)
+	if value, ok := uc.mutation.HashID(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: user.FieldHashID,
+		})
+		_node.HashID = value
+	}
 	if value, ok := uc.mutation.Age(); ok {
 		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
 			Type:   field.TypeInt,
